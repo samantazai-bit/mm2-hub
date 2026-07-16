@@ -1,22 +1,25 @@
-local OrionLib = loadstring(game:HttpGet(('https://githubusercontent.com')))()
+local Fluent = loadstring(game:HttpGet("https://github.com"))()
 local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 
-local Window = OrionLib:MakeWindow({
-    Name = "MM2 Anti-Toxic Hub", 
-    HidePremium = false, 
-    SaveConfig = true,
-    ConfigFolder = "MM2_AntiToxic"
+local Window = Fluent:CreateWindow({
+    Title = "MM2 Anti-Toxic Hub",
+    SubTitle = "by samantazai",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(580, 460),
+    Acrylic = true,
+    Theme = "Dark"
 })
 
-local CombatTab   = Window:MakeTab({ Name = "Combat", Icon = "rbxassetid://4483345998" })
-local VisualsTab  = Window:MakeTab({ Name = "Visuals", Icon = "rbxassetid://4483345998" })
-local MovementTab = Window:MakeTab({ Name = "Movement & Troll", Icon = "rbxassetid://4483345998" })
-local TeleportTab = Window:MakeTab({ Name = "Teleports", Icon = "rbxassetid://4483345998" })
+local CombatTab = Window:AddTab({ Title = "Combat", Icon = "sword" })
+local VisualsTab = Window:AddTab({ Title = "Visuals", Icon = "eye" })
+local MovementTab = Window:AddTab({ Title = "Movement & Troll", Icon = "run" })
 
-CombatTab:MakeLabel({
-    Name = "rbxassetid://109675684892198"
+-- Добавляем картинку с Кенни на главную вкладку Combat
+CombatTab:AddImage({
+    Title = "Kenny McCormick",
+    Image = "rbxassetid://109675684892198",
+    Size = UDim2.fromOffset(200, 200)
 })
 
 local function getMurderer()
@@ -32,15 +35,16 @@ local function getMurderer()
     return nil
 end
 
-CombatTab:MakeButton({
-    Name = "One-Shot Murderer (Auto)",
+CombatTab:AddButton({
+    Title = "One-Shot Murderer (Auto)",
+    Description = "Автоматически стреляет в Убийцу, если вы Шериф",
     Callback = function()
         local murderer = getMurderer()
         if not murderer then
-            OrionLib:MakeNotification({
-                Name = "Ошибка",
+            Fluent:Notify({
+                Title = "Ошибка",
                 Content = "Убийца еще не взял нож или не найден!",
-                Time = 3
+                Duration = 3
             })
             return
         end
@@ -54,11 +58,11 @@ CombatTab:MakeButton({
                 TargetCoords = targetPos
             })
         else
-            OrionLib:MakeNotification({
-                Name = "Упс!",
-                Content = "У тебя нет пистолета! Ты не Шериф и не Герой.",
-                Time = 3
+            Fluent:Notify({
+                Title = "Упс!",
+                Content = "У тебя нет пистолета! Ты не Шериф.",
+                Duration = 3
             })
         end
-    end    
+    end
 })
