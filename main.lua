@@ -1,6 +1,7 @@
 local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
+local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 
 if CoreGui:FindFirstChild("AntiToxicHub") then CoreGui.AntiToxicHub:Destroy() end
@@ -10,26 +11,25 @@ ScreenGui.Name = "AntiToxicHub"
 ScreenGui.Parent = CoreGui
 
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 450, 0, 350)
+MainFrame.Size = UDim2.new(0, 480, 0, 320)
 MainFrame.Position = UDim2.new(0.3, 0, 0.2, 0)
 MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 MainFrame.BorderSizePixel = 0
 MainFrame.Active = true
 MainFrame.Parent = ScreenGui
 
--- Скругление углов для главного окна
 local MainCorner = Instance.new("UICorner")
 MainCorner.CornerRadius = UDim.new(0, 10)
 MainCorner.Parent = MainFrame
 
--- ЛОГИКА ПЛАВНОГО ПЕРЕТАСКИВАНИЯ МЫШКОЙ (Современный метод Roblox)
+-- ПЕРЕТАСКИВАНИЕ МЫШКОЙ
 local dragging, dragInput, dragStart, startPos
 local function update(input)
     local delta = input.Position - dragStart
     MainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
 end
 MainFrame.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
         dragging = true
         dragStart = input.Position
         startPos = MainFrame.Position
@@ -39,7 +39,7 @@ MainFrame.InputBegan:Connect(function(input)
     end
 end)
 MainFrame.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then dragInput = input end
+    if input.UserInputType == Enum.UserInputType.MouseMovement then dragInput = input end
 end)
 UserInputService.InputChanged:Connect(function(input)
     if input == dragInput and dragging then update(input) end
@@ -78,12 +78,13 @@ CloseBtn.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
 
 -- КЕННИ МАККОРМИК (КАРТИНКА)
 local KennyImage = Instance.new("ImageLabel")
-KennyImage.Size = UDim2.new(0, 160, 0, 160)
-KennyImage.Position = UDim2.new(0.05, 0, 0.2, 10)
+KennyImage.Size = UDim2.new(0, 180, 0, 180)
+KennyImage.Position = UDim2.new(0.04, 0, 0.22, 10)
 KennyImage.Image = "rbxassetid://109675684892198"
 KennyImage.BackgroundTransparency = 1
 KennyImage.Parent = MainFrame
 
+-- ФУНКЦИЯ ПОИСКА МАРДЕРА
 local function getMurderer()
     for _, player in ipairs(Players:GetPlayers()) do
         local character = player.Character
@@ -97,15 +98,15 @@ local function getMurderer()
     return nil
 end
 
--- КНОПКА: АВТО-ВЫСТРЕЛ
+-- КНОПКА 1: АВТО-ВЫСТРЕЛ (ОБНОВЛЁННЫЙ)
 local ShootBtn = Instance.new("TextButton")
-ShootBtn.Size = UDim2.new(0, 220, 0, 45)
-ShootBtn.Position = UDim2.new(0.45, 0, 0.25, 10)
+ShootBtn.Size = UDim2.new(0, 230, 0, 45)
+ShootBtn.Position = UDim2.new(0.48, 0, 0.22, 10)
 ShootBtn.BackgroundColor3 = Color3.fromRGB(45, 120, 45)
 ShootBtn.Text = "One-Shot Murderer (Auto)"
 ShootBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 ShootBtn.Font = Enum.Font.SourceSansBold
-ShootBtn.TextSize = 15
+ShootBtn.TextSize = 14
 ShootBtn.Parent = MainFrame
 
 local ShootCorner = Instance.new("UICorner")
@@ -118,20 +119,22 @@ ShootBtn.MouseButton1Click:Connect(function()
     local gun = LocalPlayer.Backpack:FindFirstChild("Gun") or LocalPlayer.Character:FindFirstChild("Gun")
     if gun then
         LocalPlayer.Character.Humanoid:EquipTool(gun)
-        task.wait(0.1)
-        gun.KnifeServer.ShootGun:InvokeServer({TargetCoords = murderer.Character.Head.Position})
+        task.wait(0.4) -- Добавили правильную паузу, чтобы MM2 пропустил выстрел
+        if murderer.Character and murderer.Character:FindFirstChild("Head") then
+            gun.KnifeServer.ShootGun:InvokeServer({TargetCoords = murderer.Character.Head.Position})
+        end
     end
 end)
 
--- КНОПКА: ВХ (ESP)
+-- КНОПКА 2: ВХ (ESP)
 local EspBtn = Instance.new("TextButton")
-EspBtn.Size = UDim2.new(0, 220, 0, 45)
-EspBtn.Position = UDim2.new(0.45, 0, 0.45, 20)
+EspBtn.Size = UDim2.new(0, 230, 0, 45)
+EspBtn.Position = UDim2.new(0.48, 0, 0.42, 20)
 EspBtn.BackgroundColor3 = Color3.fromRGB(45, 45, 120)
 EspBtn.Text = "Toggle ESP (ВХ): OFF"
 EspBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 EspBtn.Font = Enum.Font.SourceSansBold
-EspBtn.TextSize = 15
+EspBtn.TextSize = 14
 EspBtn.Parent = MainFrame
 
 local EspCorner = Instance.new("UICorner")
@@ -144,7 +147,6 @@ EspBtn.MouseButton1Click:Connect(function()
     if _G.ESP_Enabled then
         EspBtn.Text = "Toggle ESP (ВХ): ON"
         EspBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 0)
-        
         task.spawn(function()
             while _G.ESP_Enabled do
                 for _, player in ipairs(Players:GetPlayers()) do
@@ -182,4 +184,44 @@ EspBtn.MouseButton1Click:Connect(function()
             end
         end
     end
+end)
+
+-- КНОПКА 3: ФЛИНГ (РАЗГОН ТОКСИКА)
+local FlingBtn = Instance.new("TextButton")
+FlingBtn.Size = UDim2.new(0, 230, 0, 45)
+FlingBtn.Position = UDim2.new(0.48, 0, 0.62, 30)
+FlingBtn.BackgroundColor3 = Color3.fromRGB(150, 75, 0)
+FlingBtn.Text = "Fling Murderer (Убить взлётом)"
+FlingBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+FlingBtn.Font = Enum.Font.SourceSansBold
+FlingBtn.TextSize = 14
+FlingBtn.Parent = MainFrame
+
+local FlingCorner = Instance.new("UICorner")
+FlingCorner.CornerRadius = UDim.new(0, 8)
+FlingCorner.Parent = FlingBtn
+
+FlingBtn.MouseButton1Click:Connect(function()
+    local murderer = getMurderer()
+    if not murderer or not murderer.Character or not murderer.Character:FindFirstChild("HumanoidRootPart") then return end
+    local RootPart = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+    if not RootPart then return end
+    
+    -- Скрипт бешеного вращения для флинга физики
+    local Bamboozle = Instance.new("BodyAngularVelocity")
+    Bamboozle.AngularVelocity = Vector3.new(0, 99999, 0)
+    Bamboozle.MaxTorque = Vector3.new(0, math.huge, 0)
+    Bamboozle.Parent = RootPart
+    
+    -- Телепортируем тебя прямо под Мардера на 1.5 секунды, чтобы физика столкновения выкинула его за карту
+    local oldPos = RootPart.CFrame
+    for i = 1, 30 do
+        if murderer.Character and murderer.Character:FindFirstChild("HumanoidRootPart") then
+            RootPart.CFrame = murderer.Character.HumanoidRootPart.CFrame + Vector3.new(0, 1, 0)
+        end
+        task.wait(0.05)
+    end
+    
+    Bamboozle:Destroy()
+    RootPart.CFrame = oldPos -- Возвращаем тебя на старое безопасное место
 end)
