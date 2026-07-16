@@ -15,13 +15,14 @@ local CombatTab = Window:AddTab({ Title = "Combat", Icon = "sword" })
 local VisualsTab = Window:AddTab({ Title = "Visuals", Icon = "eye" })
 local MovementTab = Window:AddTab({ Title = "Movement & Troll", Icon = "run" })
 
--- Добавляем картинку с Кенни на главную вкладку Combat
+-- Картинка с Кенни Маккормиком на главной вкладке
 CombatTab:AddImage({
     Title = "Kenny McCormick",
     Image = "rbxassetid://109675684892198",
     Size = UDim2.fromOffset(200, 200)
 })
 
+-- Общая функция поиска Убийцы
 local function getMurderer()
     for _, player in ipairs(Players:GetPlayers()) do
         local character = player.Character
@@ -35,6 +36,9 @@ local function getMurderer()
     return nil
 end
 
+-- =========================================================================
+-- ВКЛАДКА COMBAT (АВТО-ВЫСТРЕЛ)
+-- =========================================================================
 CombatTab:AddButton({
     Title = "One-Shot Murderer (Auto)",
     Description = "Автоматически стреляет в Убийцу, если вы Шериф",
@@ -63,6 +67,55 @@ CombatTab:AddButton({
                 Content = "У тебя нет пистолета! Ты не Шериф.",
                 Duration = 3
             })
+        end
+    end
+})
+
+-- =========================================================================
+-- ВКЛАДКА VISUALS (ESP / ВХ НА СТЕНЫ)
+-- =========================================================================
+VisualsTab:AddToggle({
+    Title = "Player ESP (ВХ)",
+    Default = false,
+    Callback = function(Value)
+        _G.ESP_Enabled = Value
+        
+        while _G.ESP_Enabled do
+            for _, player in ipairs(Players:GetPlayers()) do
+                if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                    
+                    local highlight = player.Character:FindFirstChild("ESP_Highlight")
+                    if not highlight then
+                        highlight = Instance.new("Highlight")
+                        highlight.Name = "ESP_Highlight"
+                        highlight.Parent = player.Character
+                        highlight.FillTransparency = 0.5
+                        highlight.OutlineTransparency = 0
+                    end
+                    
+                    local backpack = player:FindFirstChild("Backpack")
+                    
+                    if (backpack and backpack:FindFirstChild("Knife")) or player.Character:FindFirstChild("Knife") then
+                        highlight.FillColor = Color3.fromRGB(255, 0, 0)
+                        highlight.OutlineColor = Color3.fromRGB(255, 0, 0)
+                    elseif (backpack and backpack:FindFirstChild("Gun")) or player.Character:FindFirstChild("Gun") then
+                        highlight.FillColor = Color3.fromRGB(0, 0, 255)
+                        highlight.OutlineColor = Color3.fromRGB(0, 0, 255)
+                    else
+                        highlight.FillColor = Color3.fromRGB(0, 255, 0)
+                        highlight.OutlineColor = Color3.fromRGB(0, 255, 0)
+                    end
+                end
+            end
+            task.wait(1)
+        end
+        
+        if not _G.ESP_Enabled then
+            for _, player in ipairs(Players:GetPlayers()) do
+                if player.Character and player.Character:FindFirstChild("ESP_Highlight") then
+                    player.Character.ESP_Highlight:Destroy()
+                end
+            end
         end
     end
 })
